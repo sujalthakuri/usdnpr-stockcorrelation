@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NPR to USD Prediction Based on S&P500 and Nifty</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 30px;
+      }
+      .container {
+        width: 400px;
+        margin: 0 auto;
+        padding: 50px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+      }
+
+      input[type="submit"] {
+        width: 40%;
+        padding: 10px;
+        margin: 20px auto;
+        display: block;
+      }
+
+      .result {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Predict USD Sell Value</h2>
+
+      <form id="predictionForm">
+        <label for="sp500Close">S&P 500 Close:</label>
+        <input type="number" id="sp500Close" required />
+
+        <label for="nifty500Close">Nifty 500 Close:</label>
+        <input type="number" id="nifty500Close" required />
+
+        <input type="submit" value="Predict" />
+      </form>
+
+      <div id="predictionResult" class="result" style="display: none">
+        <h3>Predicted USD Sell Value:</h3>
+        <p id="predictedValue"></p>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("predictionForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          // Get the input values
+          const sp500Close = document.getElementById("sp500Close").value;
+          const nifty500Close = document.getElementById("nifty500Close").value;
+
+          // Structuring the data to send
+          const data = {
+            SP500_Close: sp500Close,
+            Nifty500_Close: nifty500Close,
+          };
+
+          // Send the data to the Flask API using fetch
+          fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Display the predicted value
+              document.getElementById("predictedValue").innerText =
+                data.Predicted_USD_Sell;
+              document.getElementById("predictionResult").style.display =
+                "block";
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Error in prediction. Please try again.");
+            });
+        });
+    </script>
+  </body>
+</html>
